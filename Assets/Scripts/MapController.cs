@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-
+using UnityEngine.InputSystem;
 public class MapController : MonoBehaviour, RoomSwitch
 {
     public int size;
@@ -11,17 +11,16 @@ public class MapController : MonoBehaviour, RoomSwitch
     public Room currentRoom;
     public FieldController field;
     public LimitStack<TimeCapsule> timeStack;
-    public GameObject entityHolder;
     public GameObject[] eList;
     public GameObject overlay;
-    public readonly float tcap = 1;
-    private float sampleTime;
-    public float threshold;
+    public readonly float tcap = 0.5f;
+    public float sampleTime;
+    private float threshold;
+    public int tsSize;
     void Start()
     {
-        sampleTime = 0.5f;
         threshold = tcap;
-        //Application.targetFrameRate = 60;
+        Application.targetFrameRate = 60;
 
         map = new Room[size][];
         for (int i = 0; i < size; i++) {
@@ -39,10 +38,9 @@ public class MapController : MonoBehaviour, RoomSwitch
 
         overlay.SetActive(false);
 
-        timeStack = new LimitStack<TimeCapsule>();
+        timeStack = new LimitStack<TimeCapsule>(tsSize);
 
-        Entity sample = new Entity();
-        sample.SetVals(new Vector3(2,0.5f,2), Quaternion.identity, eList[0]);
+        GenericEnemy sample = new GenericEnemy(new Vector3(2,0.5f,2), Quaternion.identity, eList[0]);
         //Change later
         currentRoom = map[2][2];
         map[2][2].Ent.Add(sample);
@@ -54,7 +52,7 @@ public class MapController : MonoBehaviour, RoomSwitch
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey(KeyCode.Space) && field.player.TimeLeft()) {
+        if (Keyboard.current.spaceKey.isPressed && field.player.TimeLeft()) {
             Time.timeScale = 0.01f;
             overlay.SetActive(true);
             if (threshold < 0) {
@@ -101,9 +99,12 @@ public class MapController : MonoBehaviour, RoomSwitch
             field.player.RefundTime();
             return;
         }
-        
+        SaveRoom();
+
+        currentRoom = past.room;
         field.LoadRoom(past.room);
         field.player.UseTimeCapsule(past);
+        
         SaveRoom();
     }
     public void North() {

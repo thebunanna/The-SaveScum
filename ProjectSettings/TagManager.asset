@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Wall
   - Doors
+  - Player_Proj
   layers:
   - Default
   - TransparentFX

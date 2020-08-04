@@ -11,6 +11,7 @@ public class EntityController : MonoBehaviour
     }
     void Update() {
         if (meta == null) Destroy (this);
+        meta.Update(this.gameObject);
     }
 
     public void SetMeta (Entity e) {
@@ -18,5 +19,17 @@ public class EntityController : MonoBehaviour
     }
     public Entity GetMeta () {
         return meta;
+    }
+
+    void OnCollisionEnter(Collision c) {
+        meta.OnCollision(this.gameObject, c.gameObject);
+    }
+
+    void Remove() {
+        Destroy(this.gameObject);
+    }
+
+    public Entity DeepCopy() {
+        return meta.DeepCopy(this.transform);
     }
 }

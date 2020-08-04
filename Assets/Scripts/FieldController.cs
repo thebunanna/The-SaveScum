@@ -44,9 +44,7 @@ public class FieldController : MonoBehaviour, RoomSwitch
         List<Entity> allInRoom = new List<Entity>();
         for (int i = 1; i < dynamic.childCount; i++) {
             Transform child = dynamic.GetChild(i);
-            Entity before = child.GetComponent<EntityController>().GetMeta();
-            Entity temp = new Entity();
-            temp.SetVals(child.position, child.rotation, before.GetModel());
+            Entity temp = child.GetComponent<EntityController>().DeepCopy();
             allInRoom.Add(temp);
         }
         MapController.Room room = new MapController.Room(map.currentRoom, allInRoom);
@@ -79,12 +77,15 @@ public class FieldController : MonoBehaviour, RoomSwitch
         //Loading Entities
         Debug.Log(room.Ent.Count);
         foreach (Entity x in room.Ent) {
-            GameObject created = Instantiate(x.GetModel(), x.GetPosition(), x.GetQuaternion(), dynamic);
-            created.AddComponent<EntityController>();
-            created.GetComponent<EntityController>().SetMeta(x);
-
-            created.SetActive(true);
+            x.Spawn(this);
         }
+    }
+
+    public Transform GetDynamic () {
+        return dynamic;
+    }
+    public Transform GetStatic () {
+        return stat;
     }
 
     public void North() {
