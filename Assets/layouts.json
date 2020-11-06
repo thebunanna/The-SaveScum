@@ -1,0 +1,228 @@
+{
+    "layouts": [        
+        {
+            "size": 10,
+            "type": "Enemy",
+            "map": [
+                "          ",
+                " WW       ",
+                " WW       ",
+                "          ",
+                "     E    ",
+                "    R     ",
+                "          ",
+                "       WW ",
+                "       WW ",
+                "          "
+            ]
+        },
+        {
+            "size": 10,
+            "type": "Enemy",
+            "map": [
+                "          ",
+                " WWWWWWWW ",
+                " W      W ",
+                "          ",
+                "     E    ",
+                "    R     ",
+                "          ",
+                " W      W ",
+                " WWWWWWWW ",
+                "          "
+            ]
+        },
+        {
+            "size": 10,
+            "type": "Enemy",
+            "map": [
+                "          ",
+                " WW       ",
+                " WW       ",
+                "          ",
+                "     E    ",
+                "    R     ",
+                "          ",
+                "          ",
+                "       E  ",
+                "          "
+            ]
+        },
+        {
+            "size": 10,
+            "type": "Enemy",
+            "map": [
+                "          ",
+                "          ",
+                "          ",
+                "          ",
+                "    EE    ",
+                "    EE    ",
+                "          ",
+                "          ",
+                "          ",
+                "          "
+            ]
+        },
+        {
+            "size": 10,
+            "type": "Enemy",
+            "map": [
+                "          ",
+                "  WW      ",
+                "  WW      ",
+                "          ",
+                "          ",
+                "     E    ",
+                "          ",
+                "      WW  ",
+                "      WW  ",
+                "          "
+            ]
+        },
+        {
+            "size": 10,
+            "type": "Empty",
+            "map": [
+                "W        W",
+                "          ",
+                "          ",
+                "          ",
+                "          ",
+                "          ",
+                "          ",
+                "          ",
+                "          ",
+                "W        W"
+            ]
+        },
+        {
+            "size": 10,
+            "type": "Empty",
+            "map": [
+                "          ",
+                "          ",
+                "          ",
+                "  W    W  ",
+                "          ",
+                " W      W ",
+                "  WWWWWW  ",
+                "          ",
+                "          ",
+                "          "
+            ]
+        },
+        {
+            "size": 10,
+            "type": "Empty",
+            "map": [
+                "          ",
+                "    R     ",
+                "          ",
+                "WWWWWWWWWW",
+                "          ",
+                "          ",
+                "WWWWWWWWWW",
+                "          ",
+                "    R     ",
+                "          "
+            ]
+        },
+        {
+            "size": 10,
+            "type": "Empty",
+            "map": [
+                "   W  W   ",
+                "   W  W   ",
+                "   W  W   ",
+                "   W  W   ",
+                " R W  W R ",
+                "   W  W   ",
+                "   W  W   ",
+                "   W  W   ",
+                "   W  W   ",
+                "   W  W    "
+            ]
+        },
+        {
+            "size": 10,
+            "type": "Trap",
+            "map": [
+                "W        W",
+                "    T     ",
+                "  TTTTTT  ",
+                "   TTT    ",
+                "  TTTTTT  ",
+                "    TT    ",
+                "  TTTTT   ",
+                "    TTT   ",
+                "          ",
+                "W        W"
+            ]
+        },
+        {
+            "size": 10,
+            "type": "Reward",
+            "map": [
+                "W        W",
+                "          ",
+                "          ",
+                "   C  C   ",
+                "    TT    ",
+                "   C  C   ",
+                "          ",
+                "          ",
+                "          ",
+                "W        W"
+            ]
+        },
+        {
+            "size": 10,
+            "type": "Reward",
+            "map": [
+                "W        W",
+                "          ",
+                "  C       ",
+                "          ",
+                "          ",
+                "          ",
+                "          ",
+                "       C  ",
+                "          ",
+                "W        W"
+            ]
+        },
+        {
+            "size": 10,
+            "type": "Reward",
+            "map": [
+                "W        W",
+                "          ",
+                "          ",
+                "          ",
+                "     C    ",
+                "          ",
+                "          ",
+                "          ",
+                "          ",
+                "W        W"
+            ]
+        },
+        {
+            "size": 10,
+            "type": "Reward",
+            "map": [
+                "W        W",
+                "          ",
+                "          ",
+                "  TTTTTT  ",
+                "  TCCCCT   ",
+                "  TTTTTT  ",
+                "          ",
+                "          ",
+                "          ",
+                "W        W"
+            ]
+        }
+    ]
+}

@@ -8,10 +8,12 @@ public class FieldController : MonoBehaviour, RoomSwitch
     int xcoord, ycoord;
     public PlayerController player;
     public MapController map;
-    private Vector3[] entryPos = {new Vector3(0,2,-4),new Vector3(0,2,4),
-         new Vector3 (-4,2,0), new Vector3(4,2,0)};
+    public GameEntitiesController gec;
+    private Vector3[] entryPos = {new Vector3(0,1,-4.5f),new Vector3(0,1,4.5f),
+         new Vector3 (-4.5f,1,0), new Vector3(4.5f,1,0)};
     private GameObject[] walls;
     private GameObject[] doors;
+    private GameObject[] bar;
     private Transform dynamic;
     private Transform stat;
     void Start()
@@ -29,29 +31,44 @@ public class FieldController : MonoBehaviour, RoomSwitch
         for (int i = 0; i < 4; i++) {
             doors[i] = stat.GetChild(i+4).gameObject;
         }
+        bar = new GameObject[4];
+        for (int i = 0; i < 4; i++) {
+            bar[i] = stat.GetChild(i+8).gameObject;
+        }
+
+        InvokeRepeating("CheckForEnemies", 1 , 1);
     }
 
     // Update is called once per frame
     void Update()
     {
-        MapController.Room temp = map.currentRoom;
-        if (temp.getX() != xcoord || temp.getY() != ycoord) {
-            LoadRoom(temp);
-        }
+        
     }
 
-    public MapController.Room SaveRoom() {
+    public void CheckForEnemies () {
+        bool val = false;
+        for (int i = 0 ; i < dynamic.childCount; i++) {
+            if (dynamic.GetChild(i).name.Contains("Enemy")) {
+                val = true;
+                break;
+            }
+        }
+
+        foreach (var x in bar) x.SetActive(val);
+        
+    }
+    public Room SaveRoom() {
         List<Entity> allInRoom = new List<Entity>();
         for (int i = 1; i < dynamic.childCount; i++) {
             Transform child = dynamic.GetChild(i);
             Entity temp = child.GetComponent<EntityController>().DeepCopy();
             allInRoom.Add(temp);
         }
-        MapController.Room room = new MapController.Room(map.currentRoom, allInRoom);
+        Room room = new Room(map.currentRoom, allInRoom);
         return room;
     }
 
-    public void LoadRoom(MapController.Room room) {
+    public void LoadRoom(Room room) {
         Debug.Log(room);
         xcoord = room.getX();
         ycoord = room.getY();
@@ -79,6 +96,8 @@ public class FieldController : MonoBehaviour, RoomSwitch
         foreach (Entity x in room.Ent) {
             x.Spawn(this);
         }
+        CheckForEnemies();
+        map.SendMessage("LoadFinished");
     }
 
     public Transform GetDynamic () {

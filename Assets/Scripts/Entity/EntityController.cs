@@ -20,11 +20,13 @@ public class EntityController : MonoBehaviour
     public Entity GetMeta () {
         return meta;
     }
-
     void OnCollisionEnter(Collision c) {
         meta.OnCollision(this.gameObject, c.gameObject);
     }
 
+    void OnTriggerEnter (Collider c) {
+        meta.OnTrigger(this.gameObject, c.gameObject);
+    }
     void Remove() {
         Destroy(this.gameObject);
     }

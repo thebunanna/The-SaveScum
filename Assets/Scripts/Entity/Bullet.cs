@@ -5,6 +5,7 @@ using UnityEngine;
 public class Bullet : Entity {
     Vector3 force;
     GameObject source;
+    public Bullet() {}
     public Bullet (Vector3 position, Quaternion rotation, GameObject model, Vector3 force, GameObject source) {
         SetVals(position, rotation, model);
         this.force = force;
@@ -18,8 +19,7 @@ public class Bullet : Entity {
     public override void OnCollision (GameObject current, GameObject other) {
         if (other.tag == "Wall" || other.tag == "Doors") {
             current.SendMessage("Remove");
-        }
-        
+        }  
     }
 
     public override Entity DeepCopy(Transform T) {
@@ -36,4 +36,8 @@ public class Bullet : Entity {
     public GameObject GetSource() {
         return source;
     }
+    public void SetSource(GameObject source) {
+        this.source = source;
+    }
+    
 }

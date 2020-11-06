@@ -4,12 +4,12 @@ using System.Collections.Generic;
 public class BasicPistol : BaseWeapon {
     public BasicPistol () {
         delay = 0.3f;
-        dmg = 1;
+        dmg = 0.6f;
         durability = -1;
         name = "Pistol";
-        ammo = "basic";
+        ammo = "Bullet1";
         deviation = 2;
-        speed = 800;
+        speed = 80;
     }
 
 }

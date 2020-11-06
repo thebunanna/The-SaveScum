@@ -13,55 +13,73 @@ public class MapController : MonoBehaviour, RoomSwitch
     public LimitStack<TimeCapsule> timeStack;
     public GameObject[] eList;
     public GameObject overlay;
-    public readonly float tcap = 0.5f;
+    public OptionsUI options;
+    public readonly float tcap = 0.2f;
     public float sampleTime;
     private float threshold;
     public int tsSize;
+    public TextAsset json;
+    private MapGen mp;
+
+    private (int, int) bossRoom;
+    void Awake () {
+        QualitySettings.vSyncCount = 0;
+        Application.targetFrameRate = 60;
+    }
     void Start()
     {
         threshold = tcap;
-        Application.targetFrameRate = 60;
-
-        map = new Room[size][];
-        for (int i = 0; i < size; i++) {
-            map[i] = new Room[size];
-            for (int j = 0; j < size; j++) {
-                bool[] isOpen = new bool[4];
-                if (i + 1 != size) isOpen[0] = true;
-                if (i - 1 != -1) isOpen[1] = true;
-                if (j + 1 != size) isOpen[2] = true;
-                if (j - 1 != -1) isOpen[3] = true;
-                
-                map[i][j] = new Room("Basic", i, j, new List<Entity>(), isOpen);
-            }
-        }
-
-        overlay.SetActive(false);
+        mp = new MapGen(5, json);
+        GenRooms();
 
         timeStack = new LimitStack<TimeCapsule>(tsSize);
 
-        GenericEnemy sample = new GenericEnemy(new Vector3(2,0.5f,2), Quaternion.identity, eList[0]);
-        //Change later
-        currentRoom = map[2][2];
-        map[2][2].Ent.Add(sample);
-
         InvokeRepeating("AddToTimeStack", sampleTime, sampleTime);
-
     }
 
+    public void SetStart() {
+        bossRoom = (UnityEngine.Random.Range(0, 5), UnityEngine.Random.Range(0, 5));
+        //bossRoom = (2,1);
+        map[2][2] = new Room("Blank", 2, 2 , new List<Entity>(), new bool[]{true, true, true, true});
+
+        map[bossRoom.Item1][bossRoom.Item2] = new Room("Boss", bossRoom.Item1, bossRoom.Item2, new List<Entity>(), new bool[]{true, true, true, true});
+
+        //Chest cs = new Chest(new Vector3(2,1,2), Quaternion.identity, field.gec.GetModel("Chest"));
+        BossEnemy be = new BossEnemy(new Vector3(0,1.38f,0), Quaternion.identity, field.gec.GetModel("BossEnemy"), 100, 0);
+
+        //cs.ForceLootTable(field.gec);
+        //map[2][2].Ent.Add(cs);
+        map[bossRoom.Item1][bossRoom.Item2].Ent.Add(be);
+        //Change later
+        currentRoom = map[2][2];
+        field.LoadRoom(map[2][2]);
+    }
+
+    public void GenRooms() {
+        map = mp.GenRooms(field.gec);
+        mp.IncDiff();
+        SetStart();
+    }    
     // Update is called once per frame
     void Update()
     {
-        if (Keyboard.current.spaceKey.isPressed && field.player.TimeLeft()) {
+        if (options.enable) return;
+
+        if (Keyboard.current.spaceKey.isPressed) {
             Time.timeScale = 0.01f;
             overlay.SetActive(true);
-            if (threshold < 0) {
+            if (threshold < 0 && field.player.TimeLeft() ) {
                 Rewind();
+                this.GetComponent<AudioSource>().Play();
                 threshold = tcap;
             }
             else {
                 threshold -= Time.deltaTime * 100;
             }
+        }
+        else if (field.player.GetHealth() <= 0 ) {
+            Time.timeScale = 0.01f;
+            overlay.SetActive(true);
         }
         else {
             threshold = tcap;
@@ -75,7 +93,7 @@ public class MapController : MonoBehaviour, RoomSwitch
         if (overlay.activeSelf) return;
         //Save Room every 1 second for time travel
         Room newRoom = this.SaveRoom();
-        TimeCapsule tc = new TimeCapsule(newRoom, field.player.transform);
+        TimeCapsule tc = new TimeCapsule(newRoom, field.player);
         timeStack.push(tc);
     }
 
@@ -107,6 +125,16 @@ public class MapController : MonoBehaviour, RoomSwitch
         
         SaveRoom();
     }
+    public void LoadFinished() {
+        if (currentRoom.getX() == bossRoom.Item1 && currentRoom.getY() == bossRoom.Item2) {
+            Debug.Log("I is at boss");
+            options.BossMusic();
+        }
+        else {
+            Debug.Log("I is normal");
+            options.NormalMusic();
+        }
+    }
     public void North() {
         int x = currentRoom.getX();
         int y = currentRoom.getY();
@@ -114,7 +142,10 @@ public class MapController : MonoBehaviour, RoomSwitch
             Debug.Log("Uh oh");
         }
         map[x][y] = timeStack.peek().room;
+
         currentRoom = map[x+1][y];
+        field.SendMessage("LoadRoom", currentRoom);
+
     }
     public void South() {
         int x = currentRoom.getX();
@@ -123,7 +154,10 @@ public class MapController : MonoBehaviour, RoomSwitch
             Debug.Log("Uh oh");
         }
         map[x][y] = timeStack.peek().room;
+
         currentRoom = map[x-1][y];
+        field.SendMessage("LoadRoom", currentRoom);
+
     }
     public void East () {
         int x = currentRoom.getX();
@@ -132,7 +166,10 @@ public class MapController : MonoBehaviour, RoomSwitch
             Debug.Log("Uh oh");
         }
         map[x][y] = timeStack.peek().room;
+
         currentRoom = map[x][y+1];
+        field.SendMessage("LoadRoom", currentRoom);
+
     }
     public void West() {
         int x = currentRoom.getX();
@@ -141,39 +178,12 @@ public class MapController : MonoBehaviour, RoomSwitch
             Debug.Log("Uh oh");
         }
         map[x][y] = timeStack.peek().room;
+
         currentRoom = map[x][y-1];
+        field.SendMessage("LoadRoom", currentRoom);
     }
 
-    public struct Room {
-        string T;
-        int X,Y;
-        public List<Entity> Ent;
-        bool[] doors;
-        public Room (string type, int x, int y, List<Entity> Entities, bool[] isOpen) {
-            T = type;
-            X = x;
-            Y = y;
-            Ent = Entities;
-            doors = isOpen;
-        }
-        public Room (Room before, List<Entity> entities) {
-            T = before.T;
-            X = before.X;
-            Y = before.Y;
-            Ent = entities;
-            doors = before.doors;
-        }
-        public int getX () {return X;}
-        public int getY () {return Y;}
-        public bool N() {return doors[0];}
-        public bool S() {return doors[1];}
-        public bool E() {return doors[2];}
-        public bool W() {return doors[3];}
-
-        public bool[] Doors() {return doors;}
-
-        public override string ToString() => $"{X}, {Y}";
-    }
+    
     public class LimitStack<T> {
         private int cap;
         private T[] inner;
@@ -208,12 +218,15 @@ public class MapController : MonoBehaviour, RoomSwitch
         public Room room;
         public Quaternion pRot;
         public Vector3 pPos;
-
+        public float hp;
+        public BaseWeapon weapon;
         //other player meta here
-        public TimeCapsule(Room room, Transform playerTransform) {
+        public TimeCapsule(Room room, PlayerController player) {
             this.room = room;
-            this.pRot = playerTransform.rotation;
-            this.pPos = playerTransform.position;
+            this.pRot = player.transform.rotation;
+            this.pPos = player.transform.position;
+            this.hp = player.GetHealth();
+            weapon = player.weapon.weapon;
         }
         
     }

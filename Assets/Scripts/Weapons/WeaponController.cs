@@ -15,6 +15,7 @@ public class WeaponController : MonoBehaviour
     public GameObject[] ammoGO;
     public Camera cam;
     private float fireRate = 0;
+    private AudioSource audio;
     void Start() {
         weapon = new BasicPistol();
         fireRate = weapon.delay;
@@ -23,6 +24,7 @@ public class WeaponController : MonoBehaviour
         foreach (var x in ammoGO) {
             ammoTypes[x.name] = x;
         }
+        audio = this.GetComponent<AudioSource>();
     }
 
     void Update() {
@@ -35,15 +37,21 @@ public class WeaponController : MonoBehaviour
     }
 
     public void OnFire(Vector2 p)
-    {        
+    {    
+        audio.PlayDelayed(0);
         RaycastHit hit;
         Ray ray = cam.ScreenPointToRay(p);
+        var layermask = 1 << 9;
+        layermask = ~layermask;
 
-        if (Physics.Raycast(ray, out hit)) {
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, layermask)) {
             Vector3 dir = hit.point - transform.position;
             dir.y = 0;
-            List<Tuple<float,string>> res = weapon.Fire();
+            List<(float, string)> res = weapon.Fire();
+
             foreach (var x in res) {
+                
+
                 Vector3 force = RotateVector(dir, x.Item1).normalized * weapon.speed;
                 GameObject model = ammoTypes[x.Item2];
                 Entity en = new Bullet(transform.position, Quaternion.identity, model, force, this.gameObject);
@@ -54,6 +62,8 @@ public class WeaponController : MonoBehaviour
                     this.transform.parent.GetComponent<Collider>());                
             }
         }
+
+        if (weapon.durability == 0) weapon = new BasicPistol();
         
     }
 
@@ -66,5 +76,24 @@ public class WeaponController : MonoBehaviour
     }
     private float toRad (float deg) {
         return ((float) Math.PI / 180) * deg;
+    }
+
+    public void ChangeGun(int type) {
+        if (weapon.name == "Pistol") {
+            switch (type) {
+                case 0:
+                    weapon = new Shotgun();
+                    break;
+                case 1:
+                    weapon = new Rifle();
+                    break;
+                default:
+                    weapon = new BasicPistol();
+                break;
+            }
+        }
+        else {
+            weapon.Upgrade();
+        }
     }
 }
